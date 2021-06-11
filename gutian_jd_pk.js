@@ -113,7 +113,7 @@ async function letsPK() {
     await getPinList(pkTimes); // 获取的pin列表
     let myScore = await getScore($.pin);
     console.log("🔥我的京享值:" + myScore);
-    if ($.pinList) {
+    if ($.pinList && $.pinList.length > 0) {
         console.log(JSON.stringify($.pinList))
         for (let i = 0; i < $.pinList.length; i++) {
             if (noTimes) {
@@ -137,6 +137,9 @@ async function letsPK() {
             await letsPK()
         }
         noTimes = false;
+    }else{
+        console.log("🔥未找到你的PK好友");
+        return
     }
 }
 
