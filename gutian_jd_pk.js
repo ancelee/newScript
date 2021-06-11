@@ -89,6 +89,7 @@ async function main() {
     console.log("当前token：" + $.token);
     if ($.token) {
         await getPin();
+        await getLeftPKTimes();
         if ($.pin) {
             console.log("🔥我的PK码：" + $.pin);
         }
@@ -122,13 +123,15 @@ async function letsPK() {
                 let pin = $.pinList[i].friendPin;
                 let name = $.pinList[i].jdNickname;
                 let fscore = await getScore(pin);
-                console.log('🔥对手：' + name + "，京享值：" + fscore);
                 if (fscore < myScore) {
+                    console.log('🔥对手：' + name + "，京享值：" + fscore + '☑PK');
                     await launchBattle(pin);
                     if(noTimes){
                         break
                     }
                     await receiveBattle(pin);
+                }else{
+                    console.log('🔥对手：' + name + "，京享值：" + fscore + '，⛔不PK');
                 }
             }
         }
@@ -138,11 +141,46 @@ async function letsPK() {
         }
         noTimes = false;
     }else{
-        console.log("🔥未找到你的PK好友");
+        console.log("🔥哎，你京东没有好友呀，你只能通过PK码去PK了。");
         return
     }
 }
+// 获取剩余PK次数
+function getLeftPKTimes() {
+    return new Promise((resolve) => {
+        let options = {
+            "url": `https://pengyougou.m.jd.com/like/jxz/getMyRankInfo?actId=8&appId=dafbe42d5bff9d82298e5230eb8c3f79&lkEPin=${$.pin}`,
 
+            "headers": {
+                "Host": "pengyougou.m.jd.com",
+                'Origin': 'https://game-cdn.moxigame.cn',
+                "Connection": "keep-alive",
+                "Accept": " */*",
+                'Referer': 'https://game-cdn.moxigame.cn/',
+                "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;10.0.2;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'zh-cn'
+            }
+        }
+
+        $.get(options, (err, resp, res) => {
+            try {
+                if (res) {
+                    let data = $.toObj(res).data;
+                    console.log('🔥【'+ data.nickName +'】，胜局：' + data.winNum + "次，还可挑战：" + data.leftLunchPkNum + '次，还可接受挑战：'+ data.leftAcceptPkNum+ '次');
+                    if(data.leftLunchPkNum==0){
+                        noTimes = true
+                        return
+                    }
+                }
+            } catch (e) {
+                console.log(e);
+            } finally {
+                resolve(res);
+            }
+        })
+    });
+}
 // 获取JD好友pk码列表
 function getPinList(page = 1) {
     return new Promise((resolve) => {
