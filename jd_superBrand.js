@@ -114,7 +114,7 @@ const JD_API_HOST = `https://api.m.jd.com/client.action`;
             }
         }
     }
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < cookiesArr.length; i++) {
         cookie = cookiesArr[i];
         if (cookie) {
             $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
@@ -122,7 +122,6 @@ const JD_API_HOST = `https://api.m.jd.com/client.action`;
             $.isLogin = true;
             $.nickName = '';
             console.log(`\n******开始【京东账号${$.index}】抽奖\n`);
-            await superBrandTaskLottery()
             await superBrandTaskLottery()
             await superBrandTaskLottery()
         }
