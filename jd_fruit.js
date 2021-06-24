@@ -1252,6 +1252,7 @@ function timeFormat(time) {
     }
     return date.getFullYear() + '-' + ((date.getMonth() + 1) >= 10 ? (date.getMonth() + 1) : '0' + (date.getMonth() + 1)) + '-' + (date.getDate() >= 10 ? date.getDate() : '0' + date.getDate());
 }
+// 获取远程助力码
 function readShareCode() {
     return new Promise(async resolve => {
         $.get({ url: `http://share.turinglabs.net/api/v3/farm/query/${randomCount}/`, timeout: 10000, }, (err, resp, data) => {
@@ -1287,11 +1288,11 @@ function shareCodesFormat() {
             const tempIndex = $.index > shareCodes.length ? (shareCodes.length - 1) : ($.index - 1);
             newShareCodes = shareCodes[tempIndex].split('@');
         }
-        const readShareCodeRes = await readShareCode();
-        if (readShareCodeRes && readShareCodeRes.code === 200) {
-            // newShareCodes = newShareCodes.concat(readShareCodeRes.data || []);
-            newShareCodes = [...new Set([...newShareCodes, ...(readShareCodeRes.data || [])])];
-        }
+        // const readShareCodeRes = await readShareCode();
+        // if (readShareCodeRes && readShareCodeRes.code === 200) {
+        //     // newShareCodes = newShareCodes.concat(readShareCodeRes.data || []);
+        //     newShareCodes = [...new Set([...newShareCodes, ...(readShareCodeRes.data || [])])];
+        // }
         console.log(`第${$.index}个京东账号将要助力的好友${JSON.stringify(newShareCodes)}`)
         resolve();
     })
