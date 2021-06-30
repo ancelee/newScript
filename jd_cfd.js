@@ -58,11 +58,19 @@ $.appId = 10009;
   }
   $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS;
   await requestAlgo();
-  let res = {}, res2 = await getAuthorShareCode("https://raw.githubusercontent.com/gitupdate/updateTeam/master/shareCodes/cfd.json")
-  if (new Date().getHours() <= 3) res = await getAuthorShareCode('http://cdn.annnibb.me/cfd.json');
-  if (!res2) res2 = await getAuthorShareCode('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/cfd.json')
-  $.strMyShareIds = [...(res && res.shareId || []),...(res2 && res2.shareId || [])]
-  $.strGroupIds = [...(res && res.strGroupIds || []),...(res2 && res2.strGroupIds || [])]
+
+
+//   let res = {}, res2 = await getAuthorShareCode("https://raw.githubusercontent.com/gitupdate/updateTeam/master/shareCodes/cfd.json")
+//   if (new Date().getHours() <= 3) res = await getAuthorShareCode('http://cdn.annnibb.me/cfd.json');
+//   if (!res2) res2 = await getAuthorShareCode('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/cfd.json')
+
+//   $.strMyShareIds = [...(res && res.shareId || []),...(res2 && res2.shareId || [])]
+//   $.strGroupIds = [...(res && res.strGroupIds || []),...(res2 && res2.strGroupIds || [])]
+
+  $.strMyShareIds = []
+  $.strGroupIds = []
+
+
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       cookie = cookiesArr[i];
@@ -1186,7 +1194,7 @@ function shareCodesFormat() {
     } else {
       console.log(`由于您第${$.index}个京东账号未提供shareCode,将采纳本脚本自带的助力码\n`)
       // const tempIndex = $.index > inviteCodes.length ? (inviteCodes.length - 1) : ($.index - 1);
-      $.newShareCodes = [...$.strMyShareIds, "F45CB4F07997DFE748E5656521A9034446A1568F6950206B0D44A5664662275D"];
+      $.newShareCodes = [...$.strMyShareIds];
     }
     const readShareCodeRes = await readShareCode();
     if (readShareCodeRes && readShareCodeRes.code === 200) {
@@ -1207,7 +1215,13 @@ function requireConfig() {
         shareCodes = process.env.JDCFD_SHARECODES.split('&');
       }
     }
-    $.shareCodesArr = [];
+    $.shareCodesArr = [
+        'DC7FD10AC8AFD8CB4DB26E4AF8880B4A10EEC9CC15E00B4342F8F50251FC2DC9@579D08FA3FD92BCE433F582B12EA93116004E5210ED1E06E6CC5A5813FB1AE19@BF326D5AFC26657C5D2F41426361537F632A19C328E02A86AD24A93086CE431B@11C919B7D73C7C9817DC5CA037A378B615060B3CEAD11F97AB00AA38A44622AD@E7C21F6932A429C843B8030341320FD93A045EC966FC7FCDB9D6931A2277A5E9',
+        'DC7FD10AC8AFD8CB4DB26E4AF8880B4A10EEC9CC15E00B4342F8F50251FC2DC9@579D08FA3FD92BCE433F582B12EA93116004E5210ED1E06E6CC5A5813FB1AE19@BF326D5AFC26657C5D2F41426361537F632A19C328E02A86AD24A93086CE431B@11C919B7D73C7C9817DC5CA037A378B615060B3CEAD11F97AB00AA38A44622AD@E7C21F6932A429C843B8030341320FD93A045EC966FC7FCDB9D6931A2277A5E9',
+        'DC7FD10AC8AFD8CB4DB26E4AF8880B4A10EEC9CC15E00B4342F8F50251FC2DC9@579D08FA3FD92BCE433F582B12EA93116004E5210ED1E06E6CC5A5813FB1AE19@BF326D5AFC26657C5D2F41426361537F632A19C328E02A86AD24A93086CE431B@11C919B7D73C7C9817DC5CA037A378B615060B3CEAD11F97AB00AA38A44622AD@E7C21F6932A429C843B8030341320FD93A045EC966FC7FCDB9D6931A2277A5E9',
+        'DC7FD10AC8AFD8CB4DB26E4AF8880B4A10EEC9CC15E00B4342F8F50251FC2DC9@579D08FA3FD92BCE433F582B12EA93116004E5210ED1E06E6CC5A5813FB1AE19@BF326D5AFC26657C5D2F41426361537F632A19C328E02A86AD24A93086CE431B@11C919B7D73C7C9817DC5CA037A378B615060B3CEAD11F97AB00AA38A44622AD@E7C21F6932A429C843B8030341320FD93A045EC966FC7FCDB9D6931A2277A5E9',
+        'DC7FD10AC8AFD8CB4DB26E4AF8880B4A10EEC9CC15E00B4342F8F50251FC2DC9@579D08FA3FD92BCE433F582B12EA93116004E5210ED1E06E6CC5A5813FB1AE19@BF326D5AFC26657C5D2F41426361537F632A19C328E02A86AD24A93086CE431B@11C919B7D73C7C9817DC5CA037A378B615060B3CEAD11F97AB00AA38A44622AD@E7C21F6932A429C843B8030341320FD93A045EC966FC7FCDB9D6931A2277A5E9',
+    ];
     if ($.isNode()) {
       Object.keys(shareCodes).forEach((item) => {
         if (shareCodes[item]) {
