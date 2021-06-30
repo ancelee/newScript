@@ -115,7 +115,7 @@ if ($.isNode()) {
           await $.wait(1000);
         }
       }
-      if ($.canHelp) await joinLeaderTuan();//参团
+        //   if ($.canHelp) await joinLeaderTuan();//参团
     }
   }
   if ($.isNode() && allMessage) {
@@ -971,20 +971,20 @@ async function tuanActivity() {
     }
   }
 }
-async function joinLeaderTuan() {
-  let res = await updateTuanIdsCDN(), res2 = await updateTuanIdsCDN("http://cdn.annnibb.me/factory.json")
-  if (!res) res = await updateTuanIdsCDN('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_updateFactoryTuanId.json');
-  $.authorTuanIds = [...(res && res.tuanIds || []),...(res2 && res2.tuanIds || [])]
-  if ($.authorTuanIds && $.authorTuanIds.length) {
-    for (let tuanId of $.authorTuanIds) {
-      if (!tuanId) continue
-      if (!$.canHelp) break;
-      console.log(`\n账号${$.UserName} 参加作者的团 【${tuanId}】`);
-      await JoinTuan(tuanId);
-      await $.wait(1000);
-    }
-  }
-}
+// async function joinLeaderTuan() {
+//   let res = await updateTuanIdsCDN(), res2 = await updateTuanIdsCDN("http://cdn.annnibb.me/factory.json")
+//   if (!res) res = await updateTuanIdsCDN('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_updateFactoryTuanId.json');
+//   $.authorTuanIds = [...(res && res.tuanIds || []),...(res2 && res2.tuanIds || [])]
+//   if ($.authorTuanIds && $.authorTuanIds.length) {
+//     for (let tuanId of $.authorTuanIds) {
+//       if (!tuanId) continue
+//       if (!$.canHelp) break;
+//       console.log(`\n账号${$.UserName} 参加作者的团 【${tuanId}】`);
+//       await JoinTuan(tuanId);
+//       await $.wait(1000);
+//     }
+//   }
+// }
 //可获取开团后的团ID，如果团ID为空并且surplusOpenTuanNum>0，则可继续开团
 //如果团ID不为空，则查询QueryTuan()
 function QueryActiveConfig() {
@@ -1202,44 +1202,44 @@ function tuanAward(activeId, tuanId, isTuanLeader = true) {
   })
 }
 
-function updateTuanIdsCDN(url = 'https://raw.githubusercontent.com/gitupdate/updateTeam/master/shareCodes/jd_updateFactoryTuanId.json') {
-  return new Promise(async resolve => {
-    const options = {
-      url: `${url}?${new Date()}`, "timeout": 10000, headers: {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/87.0.4280.88"
-      }
-    };
-    if ($.isNode() && process.env.TG_PROXY_HOST && process.env.TG_PROXY_PORT) {
-      const tunnel = require("tunnel");
-      const agent = {
-        https: tunnel.httpsOverHttp({
-          proxy: {
-            host: process.env.TG_PROXY_HOST,
-            port: process.env.TG_PROXY_PORT * 1
-          }
-        })
-      }
-      Object.assign(options, { agent })
-    }
-    $.get(options, (err, resp, data) => {
-      try {
-        if (err) {
-          // console.log(`${JSON.stringify(err)}`)
-        } else {
-          if (safeGet(data)) {
-            $.tuanConfigs = data = JSON.parse(data);
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
-    })
-    await $.wait(20000)
-    resolve();
-  })
-}
+// function updateTuanIdsCDN(url) {
+//   return new Promise(async resolve => {
+//     const options = {
+//       url: `${url}?${new Date()}`, "timeout": 10000, headers: {
+//         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/87.0.4280.88"
+//       }
+//     };
+//     if ($.isNode() && process.env.TG_PROXY_HOST && process.env.TG_PROXY_PORT) {
+//       const tunnel = require("tunnel");
+//       const agent = {
+//         https: tunnel.httpsOverHttp({
+//           proxy: {
+//             host: process.env.TG_PROXY_HOST,
+//             port: process.env.TG_PROXY_PORT * 1
+//           }
+//         })
+//       }
+//       Object.assign(options, { agent })
+//     }
+//     $.get(options, (err, resp, data) => {
+//       try {
+//         if (err) {
+//           // console.log(`${JSON.stringify(err)}`)
+//         } else {
+//           if (safeGet(data)) {
+//             $.tuanConfigs = data = JSON.parse(data);
+//           }
+//         }
+//       } catch (e) {
+//         $.logErr(e, resp)
+//       } finally {
+//         resolve(data);
+//       }
+//     })
+//     await $.wait(20000)
+//     resolve();
+//   })
+// }
 
 //商品可兑换时的通知
 async function exchangeProNotify() {
@@ -1304,30 +1304,30 @@ async function showMsg() {
     resolve()
   })
 }
-function readShareCode() {
-  console.log(`开始`)
-  return new Promise(async resolve => {
-    $.get({url: `http://share.turinglabs.net/api/v3/jxfactory/query/${randomCount}/`, 'timeout': 10000}, (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (data) {
-            console.log(`随机取${randomCount}个码放到您固定的互助码后面(不影响已有固定互助)`)
-            data = JSON.parse(data);
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
-    })
-    await $.wait(10000);
-    resolve()
-  })
-}
+// function readShareCode() {
+//   console.log(`开始`)
+//   return new Promise(async resolve => {
+//     $.get({url: `http://share.turinglabs.net/api/v3/jxfactory/query/${randomCount}/`, 'timeout': 10000}, (err, resp, data) => {
+//       try {
+//         if (err) {
+//           console.log(`${JSON.stringify(err)}`)
+//           console.log(`${$.name} API请求失败，请检查网路重试`)
+//         } else {
+//           if (data) {
+//             console.log(`随机取${randomCount}个码放到您固定的互助码后面(不影响已有固定互助)`)
+//             data = JSON.parse(data);
+//           }
+//         }
+//       } catch (e) {
+//         $.logErr(e, resp)
+//       } finally {
+//         resolve(data);
+//       }
+//     })
+//     await $.wait(10000);
+//     resolve()
+//   })
+// }
 //格式化助力码
 function shareCodesFormat() {
   return new Promise(async resolve => {
@@ -1352,13 +1352,13 @@ function requireConfig() {
   return new Promise(async resolve => {
     tuanActiveId = $.isNode() ? (process.env.TUAN_ACTIVEID || tuanActiveId) : ($.getdata('tuanActiveId') || tuanActiveId);
     if (!tuanActiveId) {
-      await updateTuanIdsCDN();
+    //   await updateTuanIdsCDN();
       if ($.tuanConfigs && $.tuanConfigs['tuanActiveId']) {
         tuanActiveId = $.tuanConfigs['tuanActiveId'];
         console.log(`拼团活动ID: 获取成功 ${tuanActiveId}\n`)
       } else {
         if (!$.tuanConfigs) {
-          await updateTuanIdsCDN('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_updateFactoryTuanId.json');
+        //   await updateTuanIdsCDN('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_updateFactoryTuanId.json');
           if ($.tuanConfigs && $.tuanConfigs['tuanActiveId']) {
             tuanActiveId = $.tuanConfigs['tuanActiveId'];
             console.log(`拼团活动ID: 获取成功 ${tuanActiveId}\n`)
