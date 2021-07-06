@@ -82,9 +82,9 @@ const JD_API_HOST = `https://api.m.jd.com/client.action`
                     await cj()
                 }
             }
-            await yaoqing()
         }
     }
+    await yaoqing()
 
     if ($.isNode() && allMessage) {
         await notify.sendNotify(`${$.name}`, `${allMessage}`)
@@ -312,11 +312,11 @@ async function yaoqing(){
             $.index = i + 1;
             $.isLogin = true;
             $.nickName = '';
-            console.log(`\n【京东账号${$.index}】\n`);
-            for (i = 0; i < codeList.length; i++) {
-                console.log(`为 ${codeList[i]}助力中`)
-                await doTask("secondfloor", $.enpid, taskObj.yaoqing.encryptAssignmentId, codeList[i], 2)
-
+            console.log(`\n【京东账号${$.index}】开始助力\n`);
+            for (j = 0; j < codeList.length; j++) {
+                console.log(`为 ${codeList[j]}助力中`)
+                await doTask("secondfloor", $.enpid, taskObj.yaoqing.encryptAssignmentId, codeList[j], 2)
+                await $.wait(500); 
             }
         }
     }
