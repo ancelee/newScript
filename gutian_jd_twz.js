@@ -77,11 +77,12 @@ const JD_API_HOST = `https://api.m.jd.com/client.action`
                 await share()
                 await guanzhu()
                 await kaika()
-                await yaoqing()
+                console.log("开始抽奖")
                 for (let i = 0; i < 3; i++) {
                     await cj()
                 }
             }
+            await yaoqing()
         }
     }
 
@@ -311,7 +312,7 @@ async function yaoqing(){
             $.index = i + 1;
             $.isLogin = true;
             $.nickName = '';
-            console.log(`\n******开始【京东账号${$.index}】\n`);
+            console.log(`\n【京东账号${$.index}】\n`);
             for (i = 0; i < codeList.length; i++) {
                 console.log(`为 ${codeList[i]}助力中`)
                 await doTask("secondfloor", $.enpid, taskObj.yaoqing.encryptAssignmentId, codeList[i], 2)
