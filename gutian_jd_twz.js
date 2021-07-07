@@ -81,6 +81,8 @@ const JD_API_HOST = `https://api.m.jd.com/client.action`
                 for (let i = 0; i < 3; i++) {
                     await cj()
                 }
+            }else{
+                return
             }
         }
     }
@@ -121,7 +123,7 @@ function getid(functionid, source) {
                         resolve(json)
                         console.log(`当前活动：${json.actname}  ${json.actid}`)
                     } else {
-                        console.log("获取失败")
+                        console.log(data.data.bizMsg || "获取活动失败")
                         $.cando = false
                         resolve()
                     }
