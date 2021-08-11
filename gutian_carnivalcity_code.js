@@ -1,5 +1,5 @@
 /*
-京东手机狂欢城活动
+京东手机狂欢城Code
 活动时间: 2021-8-9至2021-8-28
 活动入口：暂无 [活动地址](https://carnivalcity.m.jd.com)
 
@@ -25,7 +25,7 @@ cron "0 0-18/6 * * *" script-path=gua_carnivalcity.js, tag=京东手机狂欢城
 ============小火箭=========
 5G狂欢城 = type=cron,script-path=gua_carnivalcity.js, cronexpr="0 0,6,12,18 * * *", timeout=3600, enable=true
 */
-const $ = new Env('京东手机狂欢城');
+const $ = new Env('京东手机狂欢城Code');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
