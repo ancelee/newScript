@@ -1059,7 +1059,7 @@ async function masterGotFinishedTaskForFarm() {
 //助力好友信息API
 async function masterHelpTaskInitForFarm() {
     const functionId = arguments.callee.name.toString();
-    $.masterHelpResult = await request(functionId);
+    $.masterHelpResult = await request(functionId, {"version":14,"channel":1,"babelChannel":"120"});
 }
 //接受对方邀请,成为对方好友的API
 async function inviteFriend() {
@@ -1253,29 +1253,29 @@ function timeFormat(time) {
     return date.getFullYear() + '-' + ((date.getMonth() + 1) >= 10 ? (date.getMonth() + 1) : '0' + (date.getMonth() + 1)) + '-' + (date.getDate() >= 10 ? date.getDate() : '0' + date.getDate());
 }
 // 获取远程助力码
-function readShareCode() {
-    return new Promise(async resolve => {
-        $.get({ url: `http://share.turinglabs.net/api/v3/farm/query/${randomCount}/`, timeout: 10000, }, (err, resp, data) => {
-            try {
-                if (err) {
-                    console.log(`${JSON.stringify(err)}`)
-                    console.log(`${$.name} API请求失败，请检查网路重试`)
-                } else {
-                    if (data) {
-                        console.log(`随机取个${randomCount}码放到您固定的互助码后面(不影响已有固定互助)`)
-                        data = JSON.parse(data);
-                    }
-                }
-            } catch (e) {
-                $.logErr(e, resp)
-            } finally {
-                resolve(data);
-            }
-        })
-        await $.wait(10000);
-        resolve()
-    })
-}
+// function readShareCode() {
+//     return new Promise(async resolve => {
+//         $.get({ url: `http://share.turinglabs.net/api/v3/farm/query/${randomCount}/`, timeout: 10000, }, (err, resp, data) => {
+//             try {
+//                 if (err) {
+//                     console.log(`${JSON.stringify(err)}`)
+//                     console.log(`${$.name} API请求失败，请检查网路重试`)
+//                 } else {
+//                     if (data) {
+//                         console.log(`随机取个${randomCount}码放到您固定的互助码后面(不影响已有固定互助)`)
+//                         data = JSON.parse(data);
+//                     }
+//                 }
+//             } catch (e) {
+//                 $.logErr(e, resp)
+//             } finally {
+//                 resolve(data);
+//             }
+//         })
+//         await $.wait(10000);
+//         resolve()
+//     })
+// }
 // 邀请码格式化
 function shareCodesFormat() {
     return new Promise(async resolve => {
@@ -1336,45 +1336,46 @@ function requireConfig() {
 }
 function TotalBean() {
     return new Promise(async resolve => {
-        const options = {
-            url: "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion",
-            headers: {
-                Host: "me-api.jd.com",
-                Accept: "*/*",
-                Connection: "keep-alive",
-                Cookie: cookie,
-                "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
-                "Accept-Language": "zh-cn",
-                "Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
-                "Accept-Encoding": "gzip, deflate, br"
-            }
+      const options = {
+        "url": `https://wq.jd.com/user/info/QueryJDUserInfo?sceneval=2`,
+        "headers": {
+          "Accept": "application/json,text/plain, */*",
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Accept-Encoding": "gzip, deflate, br",
+          "Accept-Language": "zh-cn",
+          "Connection": "keep-alive",
+          "Cookie": cookie,
+          "Referer": "https://wqs.jd.com/my/jingdou/my.shtml?sceneval=2",
+          "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1")
         }
-        $.get(options, (err, resp, data) => {
-            try {
-                if (err) {
-                    $.logErr(err)
-                } else {
-                    if (data) {
-                        data = JSON.parse(data);
-                        if (data['retcode'] === "1001") {
-                            $.isLogin = false; //cookie过期
-                            return;
-                        }
-                        if (data['retcode'] === "0" && data.data && data.data.hasOwnProperty("userInfo")) {
-                            $.nickName = data.data.userInfo.baseInfo.nickname;
-                        }
-                    } else {
-                        $.log('京东服务器返回空数据');
-                    }
-                }
-            } catch (e) {
-                $.logErr(e)
-            } finally {
-                resolve();
+      }
+      $.post(options, (err, resp, data) => {
+        try {
+          if (err) {
+            console.log(`${JSON.stringify(err)}`)
+            console.log(`${$.name} API请求失败，请检查网路重试`)
+          } else {
+            if (data) {
+              data = JSON.parse(data);
+              if (data['retcode'] === 13) {
+                $.isLogin = false; //cookie过期
+                return
+              }
+              if (data['retcode'] === 0 && data.base && data.base.nickname) {
+                $.nickName = data.base.nickname;
+              }
+            } else {
+              console.log(`京东服务器返回空数据`)
             }
-        })
+          }
+        } catch (e) {
+          $.logErr(e)
+        } finally {
+          resolve();
+        }
+      })
     })
-}
+  }
 function request(function_id, body = {}, timeout = 1000) {
     return new Promise(resolve => {
         setTimeout(() => {
