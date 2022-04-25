@@ -1,5 +1,5 @@
 /*
-Last Modified time: 2020-12-26 22:58:02
+Last Modified time: 2022-04-25 14:48
 东东工厂，不是京喜工厂
 活动入口：京东APP首页-数码电器-东东工厂
 免费产生的电量(10秒1个电量，500个电量满，5000秒到上限不生产，算起来是84分钟达到上限)
@@ -26,6 +26,8 @@ cron "10 * * * *" script-path=jd_jdfactory.js,tag=东东工厂
  */
 const $ = new Env('东东工厂');
 
+console.log('\n====================古蒂安修改版====================\n')
+
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
@@ -44,8 +46,7 @@ if ($.isNode()) {
 }
 let wantProduct = ``;//心仪商品名称
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
-const inviteCodes = [`P04z54XCjVWnYaS5u2ak7ZCdan1Bdd2GGiWvC6_uERj`, 'P04z54XCjVWnYaS5m9cZ2ariXVJwHf0bgkG7Uo',
-`T0225KkcRB8c_VODck-nl_8IdgCjVWnYaS5kRrbA`];
+const inviteCodes = [''];
 !(async () => {
   await requireConfig();
   if (!cookiesArr[0]) {
@@ -58,18 +59,9 @@ const inviteCodes = [`P04z54XCjVWnYaS5u2ak7ZCdan1Bdd2GGiWvC6_uERj`, 'P04z54XCjVW
       $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
       $.index = i + 1;
       $.isLogin = true;
-      $.nickName = '';
+      $.nickName = $.UserName;
       message = '';
-      await TotalBean();
       console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
-      if (!$.isLogin) {
-        $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
-
-        if ($.isNode()) {
-          await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
-        }
-        continue
-      }
       await shareCodesFormat();
       await jdFactory()
     }
@@ -84,7 +76,7 @@ const inviteCodes = [`P04z54XCjVWnYaS5u2ak7ZCdan1Bdd2GGiWvC6_uERj`, 'P04z54XCjVW
 async function jdFactory() {
   try {
     await jdfactory_getHomeData();
-    await helpFriends();
+    // await helpFriends();
     // $.newUser !==1 && $.haveProduct === 2，老用户但未选购商品
     // $.newUser === 1新用户
     if ($.newUser === 1) return
@@ -251,12 +243,14 @@ async function helpFriends() {
   }
 }
 async function doTask() {
+  // console.log('任务对象=======开始========', JSON.stringify($.taskVos))
+  // console.log('任务对象=======结算========')
   if ($.taskVos && $.taskVos.length > 0) {
     for (let item of $.taskVos) {
       if (item.taskType === 1) {
         //关注店铺任务
         if (item.status === 1) {
-          console.log(`准备做此任务：${item.taskName}`);
+          console.log(`做任务：${item.taskName}`);
           for (let task of item.followShopVo) {
             if (task.status === 1) {
               await jdfactory_collectScore(task.taskToken);
@@ -269,7 +263,20 @@ async function doTask() {
       if (item.taskType === 2) {
         //看看商品任务
         if (item.status === 1) {
-          console.log(`准备做此任务：${item.taskName}`);
+          console.log(`做任务：${item.taskName}`);
+          for (let task of item.productInfoVos) {
+            if (task.status === 1) {
+              await jdfactory_collectScore(task.taskToken);
+            }
+          }
+        } else {
+          console.log(`${item.taskName}已做完`)
+        }
+      }
+      if (item.taskType === 15) {
+        //商品加购
+        if (item.status === 1) {
+          console.log(`🎯做任务：${item.taskName}`);
           for (let task of item.productInfoVos) {
             if (task.status === 1) {
               await jdfactory_collectScore(task.taskToken);
@@ -280,9 +287,9 @@ async function doTask() {
         }
       }
       if (item.taskType === 3) {
-        //逛会场任务
+        //逛互动
         if (item.status === 1) {
-          console.log(`准备做此任务：${item.taskName}`);
+          console.log(`🎯做任务：${item.taskName}`);
           for (let task of item.shoppingActivityVos) {
             if (task.status === 1) {
               await jdfactory_collectScore(task.taskToken);
@@ -292,11 +299,27 @@ async function doTask() {
           console.log(`${item.taskName}已做完`)
         }
       }
+      if (item.taskType === 9) {
+        //逛会场
+        if (item.status === 1) {
+          console.log(`🎯做任务【逛会场】：${item.taskName}`);
+          for (let task of item.shoppingActivityVos) {
+            if (task.status === 0) {
+              await jdfactory_collectScore(task.taskToken);
+              await $.wait(6100)
+              await jdfactory_collectScore(task.taskToken, 1);
+            }
+          }
+        } else {
+          console.log(`${item.taskName}已做完`)
+        }
+      }
       if (item.taskType === 10) {
+		    // 每日10-13点巡厂
         if (item.status === 1) {
           if (item.threeMealInfoVos[0].status === 1) {
             //可以做此任务
-            console.log(`准备做此任务：${item.taskName}`);
+            console.log(`🎯做任务：${item.taskName}`);
             await jdfactory_collectScore(item.threeMealInfoVos[0].taskToken);
           } else if (item.threeMealInfoVos[0].status === 0) {
             console.log(`${item.taskName} 任务已错过时间`)
@@ -306,14 +329,14 @@ async function doTask() {
         }
       }
       if (item.taskType === 21) {
-        //开通会员任务
+        //开通会员任务，只能做已完成开卡的任务
         if (item.status === 1) {
-          console.log(`此任务：${item.taskName}，跳过`);
-          // for (let task of item.brandMemberVos) {
-          //   if (task.status === 1) {
-          //     await jdfactory_collectScore(task.taskToken);
-          //   }
-          // }
+          console.log(`🎯做任务：${item.taskName}`);
+          for (let task of item.brandMemberVos) {
+            if (task.status === 1) {
+              await jdfactory_collectScore(task.taskToken);
+            }
+          }
         } else {
           console.log(`${item.taskName}已做完`)
         }
@@ -321,7 +344,7 @@ async function doTask() {
       if (item.taskType === 13) {
         //每日打卡
         if (item.status === 1) {
-          console.log(`准备做此任务：${item.taskName}`);
+          console.log(`🎯做任务：${item.taskName}`);
           await jdfactory_collectScore(item.simpleRecordInfoVo.taskToken);
         } else {
           console.log(`${item.taskName}已完成`);
@@ -330,7 +353,7 @@ async function doTask() {
       if (item.taskType === 14) {
         //好友助力
         if (item.status === 1) {
-          console.log(`准备做此任务：${item.taskName}`);
+          console.log(`🎯做任务：${item.taskName}`);
           // await jdfactory_collectScore(item.simpleRecordInfoVo.taskToken);
         } else {
           console.log(`${item.taskName}已完成`);
@@ -339,7 +362,7 @@ async function doTask() {
       if (item.taskType === 23) {
         //从数码电器首页进入
         if (item.status === 1) {
-          console.log(`准备做此任务：${item.taskName}`);
+          console.log(`🎯做任务：${item.taskName}`);
           await queryVkComponent();
           await jdfactory_collectScore(item.simpleRecordInfoVo.taskToken);
         } else {
@@ -351,10 +374,12 @@ async function doTask() {
 }
 
 //领取做完任务的奖励
-function jdfactory_collectScore(taskToken) {
+function jdfactory_collectScore(taskToken, actionType) {
   return new Promise(async resolve => {
     await $.wait(1000);
-    $.post(taskPostUrl("jdfactory_collectScore", { taskToken }, "jdfactory_collectScore"), async (err, resp, data) => {
+    let body = actionType ? { taskToken, actionType: 1} : { taskToken }
+
+    $.post(taskPostUrl("jdfactory_collectScore", body, "jdfactory_collectScore"), async (err, resp, data) => {
       try {
         if (err) {
           console.log(`${JSON.stringify(err)}`)
@@ -618,7 +643,7 @@ function jdfactory_getHomeData() {
 function readShareCode() {
   console.log(`开始`)
   return new Promise(async resolve => {
-    $.get({url: `http://share.turinglabs.net/api/v3/ddfactory/query/${randomCount}/`, timeout: 10000}, (err, resp, data) => {
+    $.get({url: `https://api.jdsharecode.xyz/api/ddfactory/${randomCount}`, timeout: 10000}, (err, resp, data) => {
       try {
         if (err) {
           console.log(`${JSON.stringify(err)}`)
@@ -685,7 +710,7 @@ function taskPostUrl(function_id, body = {}, function_id2) {
   }
   return {
     url,
-    body: `functionId=${function_id}&body=${escape(JSON.stringify(body))}&client=wh5&clientVersion=1.1.0`,
+    body: `functionId=${function_id}&body=${escape(JSON.stringify(body))}&client=wh5&clientVersion=1.0.0`,
     headers: {
       "Accept": "application/json, text/plain, */*",
       "Accept-Encoding": "gzip, deflate, br",
@@ -700,51 +725,6 @@ function taskPostUrl(function_id, body = {}, function_id2) {
     },
     timeout: 10000,
   }
-}
-function TotalBean() {
-  return new Promise(async resolve => {
-    const options = {
-      "url": `https://wq.jd.com/user/info/QueryJDUserInfo?sceneval=2`,
-      "headers": {
-        "Accept": "application/json,text/plain, */*",
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "zh-cn",
-        "Connection": "keep-alive",
-        "Cookie": cookie,
-        "Referer": "https://wqs.jd.com/my/jingdou/my.shtml?sceneval=2",
-        "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1")
-      },
-      "timeout": 10000,
-    }
-    $.post(options, (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (data) {
-            data = JSON.parse(data);
-            if (data['retcode'] === 13) {
-              $.isLogin = false; //cookie过期
-              return
-            }
-            if (data['retcode'] === 0) {
-              $.nickName = (data['base'] && data['base'].nickname) || $.UserName;
-            } else {
-              $.nickName = $.UserName
-            }
-          } else {
-            console.log(`京东服务器返回空数据`)
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve();
-      }
-    })
-  })
 }
 function safeGet(data) {
   try {
